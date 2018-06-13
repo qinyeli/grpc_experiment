@@ -16,7 +16,13 @@ flags.DEFINE_integer('port', 50051, '')
 
 
 def main(unused_argv):
+
   channel = grpc.insecure_channel('localhost:%s' % FLAGS.port)
+  # channel = grpc.insecure_channel('localhost:%s' % FLAGS.port, options=[
+  #   ("grpc.keepalive_time_ms", 1),
+  #   ("grpc.keepalive_timeout_ms", 1)
+  # ])
+
   stub = chat_pb2_grpc.MessengerStub(channel)
   responses = stub.SendMessage(chat_pb2.MessageRequest(message='Hello'))
 

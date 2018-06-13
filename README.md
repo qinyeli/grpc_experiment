@@ -39,23 +39,45 @@ The server sleeps for **2 seconds** between every two responses.
 1. Run server; run client, wait for it to finish normally; shutdown server.
 2. Run client without server.
 
-Observation:
+   Observation:
 
-```
-RpcError: <_Rendezvous of RPC that terminated with (StatusCode.UNAVAILABLE, Connect Failed)>
-```
+   ```
+   RpcError: <_Rendezvous of RPC that terminated with (StatusCode.UNAVAILABLE, Connect Failed)>
+   ```
 
 3. Run server; run client; shutdown server after client receives the first message
 
-Observation:
+   Observation:
 
-```
-RpcError: <_Rendezvous of RPC that terminated with (StatusCode.INTERNAL, Received RST_STREAM with error code 2)>
-```
+   ```
+   RpcError: <_Rendezvous of RPC that terminated with (StatusCode.INTERNAL, Received RST_STREAM with error code 2)>
+   ```
 
 4. Run server; run client; **suspend** server after client receives the first message
 
-Observation: client freezes. Unable to shutdown with Ctrl-C
+   Observation: client freezes. Unable to shutdown with Ctrl-C
+
+5. Add the following options to the channel on the client side:
+
+   ```python
+   options=[
+     ("grpc.keepalive_time_ms", 1),
+     ("grpc.keepalive_timeout_ms", 1)
+   ]
+   ```
+
+   a. Run server; run client; run client; run client; repeat
+
+      Observation: client sometimes finishes normally; sometimes gives
+
+      ```bash
+      RpcError: <_Rendezvous of RPC that terminated with (StatusCode.INTERNAL, keepalive watchdog timeout)>
+      ```
+
+   b. Run server; run client; ** suspend** server after client receives the first message
+
+      Obsevation: same as 4.
+
 
 ## Analogy
 
